@@ -9,7 +9,7 @@ RUN addgroup --gid $USER_GID $USER_USERNAME
 RUN adduser --gecos "" --disabled-password --gid $USER_GID --uid $USER_UID $USER_USERNAME
 
 RUN apt-get update \
-    && apt-get install -y libicu-dev git \
+    && apt-get install -y procps libicu-dev git htop \
     && pecl install redis \
     && docker-php-ext-enable redis
 
