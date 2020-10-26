@@ -1,4 +1,5 @@
-DOCKER_COMPOSE = docker-compose
+ENV = source ./docker/env.sh
+DOCKER_COMPOSE = $(ENV) && docker-compose
 
 SHELL := /bin/bash
 DEFAULT_GOAL := help

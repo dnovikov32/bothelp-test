@@ -27,6 +27,10 @@ services:
   php:
     build:
       context: ./docker/php
+      args:
+        - USER_USERNAME
+        - USER_UID
+        - USER_GID
     volumes:
       - ./:/usr/share/bothelp:rw
     links:
