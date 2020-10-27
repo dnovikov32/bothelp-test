@@ -20,8 +20,8 @@ try {
 
     while ($worker->hasJob()) {
 
-        if ($worker->hasLock()) {
-            usleep(500);
+        if (! $worker->lock()) {
+            usleep(300);
             continue;
         }
 

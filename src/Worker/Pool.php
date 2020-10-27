@@ -6,8 +6,6 @@ namespace App\Worker;
 
 class Pool
 {
-    const LIMIT_WORKERS = 10;
-
     public function getWorkersCount(): int
     {
         return (int) exec('ps aux | grep -v grep | grep -c "worker.php"');
