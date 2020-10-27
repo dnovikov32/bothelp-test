@@ -5,7 +5,6 @@ services:
     image: redis:latest
     ports:
       - 6379:6379
-#    command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redis-data:/data
     networks:
@@ -27,10 +26,6 @@ services:
   php:
     build:
       context: ./docker/php
-      args:
-        - USER_USERNAME
-        - USER_UID
-        - USER_GID
     volumes:
       - ./:/usr/share/bothelp:rw
     links:
