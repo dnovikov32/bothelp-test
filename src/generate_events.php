@@ -36,5 +36,7 @@ while ($eventsCount < LIMIT_EVENTS) {
 
     $eventsCount += $eventsNumber;
 
-    echo sprintf("Account %d events %s\n", $account, $eventsNumber);
+    echo sprintf("Added account %d events %s\n", $account, $eventsNumber);
 }
+
+echo sprintf("Generated %d events\n", $eventsCount);

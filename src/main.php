@@ -10,6 +10,9 @@ const LIMIT_WORKERS = 256;
 
 $pool = new Pool;
 
+echo "Start main process\n";
+
 while ($pool->getWorkersCount() < LIMIT_WORKERS) {
+    echo sprintf("Workers count: %d\n", $pool->getWorkersCount());
     $pool->runWorker();
 }
