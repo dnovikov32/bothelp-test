@@ -29,3 +29,10 @@ docker-rebuild: ## Build all docker images from scratch, without cache etc. Buil
 .PHONY: ssh-php
 ssh-php: ## PHP container console
 	$(DOCKER_COMPOSE) exec php bash
+
+.PHONY: run
+run: ## Run all tasks
+	$(DOCKER_COMPOSE) up -d && \
+	$(DOCKER_COMPOSE) exec php composer install && \
+	$(DOCKER_COMPOSE) exec php php src/generate_events.php && \
+	$(DOCKER_COMPOSE) exec php php src/main.php
