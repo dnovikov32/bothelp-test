@@ -13,7 +13,8 @@ class Pool
 
     public function runWorker(): void
     {
-        exec("php worker.php > /dev/null 2>&1 &");
+        $script = __DIR__ . '/../worker.php';
+        exec(sprintf("php %s > /dev/null 2>&1 &", $script));
     }
 
 }
