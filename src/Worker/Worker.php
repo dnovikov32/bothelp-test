@@ -9,11 +9,6 @@ use Predis\Client;
 class Worker {
 
     /**
-     * Имя ключа очереди всех событий.
-     */
-    const EVENTS_QUEUE_KEY_NAME = 'queue:events';
-
-    /**
      * Имя ключа для хранения массива всех событий аккаунта.
      */
     const ACCOUNT_EVENTS_KEY_NAME = 'account:%d';
@@ -39,6 +34,17 @@ class Worker {
     private Logger $logger;
 
     /**
+     * Имя ключа очереди всех событий.
+     */
+    private string $queue;
+
+    /**
+     * Массив всех ID событий аккаунта.
+     * Семафор для правильного порядка обработки событий.
+     */
+    private array $accountQueue = [];
+
+    /**
      * Текущее событие обработчика из очереди всех событий.
      *
      * ```php
@@ -50,17 +56,12 @@ class Worker {
      */
     private array $event = [];
 
-    /**
-     * Массив всех ID событий аккаунта.
-     * Семафор для правильного порядка обработки событий.
-     */
-    private array $queue = [];
-
-    public function __construct(Client $redis, Logger $logger)
+    public function __construct(Client $redis, Logger $logger, $queue)
     {
         $this->id = getmypid();
         $this->redis = $redis;
         $this->logger = $logger;
+        $this->queue = $queue;
 
         $this->initEvent();
     }
@@ -70,7 +71,7 @@ class Worker {
      */
     private function initEvent()
     {
-        $this->event = (array) json_decode($this->redis->lpop(self::EVENTS_QUEUE_KEY_NAME));
+        $this->event = (array) json_decode($this->redis->lpop($this->queue));
 
         $this->redis->sadd(sprintf(
             self::ACCOUNT_EVENTS_KEY_NAME, $this->event['accountId']
@@ -106,14 +107,14 @@ class Worker {
      */
     public function execute(): bool
     {
-        $this->queue = $this->redis->smembers(sprintf(
+        $this->accountQueue = $this->redis->smembers(sprintf(
             self::ACCOUNT_EVENTS_KEY_NAME, $this->event['accountId']
         ));
 
-        $this->queue = array_map('intval', $this->queue);
-        sort($this->queue);
+        $this->accountQueue = array_map('intval', $this->accountQueue);
+        sort($this->accountQueue);
 
-        if ($this->queue[0] !== $this->event['eventId']) {
+        if ($this->accountQueue[0] !== $this->event['eventId']) {
             return false;
         }
 
@@ -132,7 +133,7 @@ class Worker {
      */
     public function delete(): bool
     {
-        unset($this->queue[0]);
+        unset($this->accountQueue[0]);
 
         $this->redis->srem(sprintf(
             self::ACCOUNT_EVENTS_KEY_NAME, $this->event['accountId']

@@ -8,12 +8,17 @@ use Predis\Client;
 use App\Worker\Worker;
 use App\Worker\Logger;
 
+(new \Dotenv\Dotenv(__DIR__ . '/../'))->load();
+
+$queue = getenv('EVENTS_QUEUE_KEY_NAME');
+
 $worker = new Worker(
     new Client([
-        'host' => 'redis',
-        'port' => 6379
+        'host' => getenv('REDIS_HOST'),
+        'port' => getenv('REDIS_PORT'),
     ]),
-    new Logger(__DIR__ . '/../log/log.txt')
+    new Logger(__DIR__ . '/../log/log.txt'),
+    $queue
 );
 
 try {
