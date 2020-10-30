@@ -6,23 +6,25 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 
 use Predis\Client;
 
-const LIMIT_ACCOUNTS = 1000;
-const LIMIT_EVENTS = 10000;
-const LIMIT_ACCOUNT_EVENTS = 10;
+(new \Dotenv\Dotenv(__DIR__ . '/../'))->load();
 
-$redis = new Client([
-    'host' => 'redis',
-    'port' => 6379,
-]);
-
-$redis->del('queue:events');
-
+$limitEvents = (int) getenv('LIMIT_EVENTS');
+$limitAccounts = (int) getenv('LIMIT_ACCOUNTS');
+$limitAccountEvents = (int) getenv('LIMIT_ACCOUNT_EVENTS');
+$queue = getenv('EVENTS_QUEUE_KEY_NAME');
 $eventsCount = 0;
 
-while ($eventsCount < LIMIT_EVENTS) {
-    $account = mt_rand(1, LIMIT_ACCOUNTS);
+$redis = new Client([
+    'host' => getenv('REDIS_HOST'),
+    'port' => getenv('REDIS_PORT'),
+]);
 
-    $eventsNumber = mt_rand(1, LIMIT_ACCOUNT_EVENTS);
+$redis->del($queue);
+
+while ($eventsCount < $limitEvents) {
+    $account = mt_rand(1, $limitAccounts);
+
+    $eventsNumber = mt_rand(1, $limitAccountEvents);
     $events = [];
 
     for ($i = 1; $i <= $eventsNumber; $i++) {
@@ -32,7 +34,7 @@ while ($eventsCount < LIMIT_EVENTS) {
         ]);
     }
 
-    $redis->rpush('queue:events', $events);
+    $redis->rpush($queue, $events);
 
     $eventsCount += $eventsNumber;
 
