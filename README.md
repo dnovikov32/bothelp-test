@@ -33,7 +33,10 @@ $ make run
 
 ### Описание
 **Redis commander**  
-Доступен по адресу http://localhost:8081/
+Доступен по адресу http://localhost:8081/  
+Login: root  
+Password: root  
+
 
 **src/generate_events.php**  
 Скрипт заполняет очередь `queue:events` событиями в количестве 10000.  
