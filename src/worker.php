@@ -11,15 +11,13 @@ use App\Worker\Logger;
 (new \Dotenv\Dotenv(__DIR__ . '/../'))->load();
 
 $queue = getenv('EVENTS_QUEUE_KEY_NAME');
+$client = new Client([
+    'host' => getenv('REDIS_HOST'),
+    'port' => getenv('REDIS_PORT'),
+]);
+$logger = new Logger(__DIR__ . '/../log/log.txt');
 
-$worker = new Worker(
-    new Client([
-        'host' => getenv('REDIS_HOST'),
-        'port' => getenv('REDIS_PORT'),
-    ]),
-    new Logger(__DIR__ . '/../log/log.txt'),
-    $queue
-);
+$worker = new Worker($queue, $client, $logger);
 
 try {
 

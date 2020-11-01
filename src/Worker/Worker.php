@@ -21,7 +21,7 @@ class Worker {
     /**
      * ID процесса.
      */
-    public int $id = 0;
+    private int $id = 0;
 
     /**
      * Экземпляр клиента Redis.
@@ -56,12 +56,17 @@ class Worker {
      */
     private array $event = [];
 
-    public function __construct(Client $redis, Logger $logger, $queue)
+    /**
+     * @param string $queue Название очереди.
+     * @param Client $redis Клиент redis.
+     * @param Logger $logger Логгер.
+     */
+    public function __construct(string $queue, Client $redis, Logger $logger)
     {
         $this->id = getmypid();
+        $this->queue = $queue;
         $this->redis = $redis;
         $this->logger = $logger;
-        $this->queue = $queue;
 
         $this->initEvent();
     }
@@ -69,7 +74,7 @@ class Worker {
     /**
      * Читает событие из общей очереди и добавляет его в массив событий аккаунта.
      */
-    private function initEvent()
+    private function initEvent(): void
     {
         $this->event = (array) json_decode($this->redis->lpop($this->queue));
 
@@ -151,6 +156,14 @@ class Worker {
     public function release(): void
     {
         $this->redis->del($this->getLockKey());
+    }
+
+    /**
+     * Возвращает PID текущего процесса.
+     */
+    public function getId(): int
+    {
+        return $this->id;
     }
 
 }
