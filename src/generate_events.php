@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
+use Dotenv\Dotenv;
 use Predis\Client;
 
-(new \Dotenv\Dotenv(__DIR__ . '/../'))->load();
+(new Dotenv(__DIR__ . '/../'))->load();
 
 $queue = getenv('EVENTS_QUEUE_KEY_NAME');
 $limitEvents = (int) getenv('LIMIT_EVENTS');
@@ -21,15 +22,15 @@ $redis = new Client([
 
 $redis->del($queue);
 
-$accounts = range(1, $limitAccounts);
+$accounts = range(1, $limitAccounts * 2);
 shuffle($accounts);
 
 while ($accounts && $eventsCount < $limitEvents) {
     $accountId = array_pop($accounts);
-    $eventsNumber = mt_rand(1, $limitAccountEvents);
+    $accountEvents = mt_rand(1, $limitAccountEvents);
     $events = [];
 
-    for ($i = 1; $i <= $eventsNumber; $i++) {
+    for ($i = 1; $i <= $accountEvents; $i++) {
         $events[] = json_encode([
             'accountId' => $accountId,
             'eventId' => $i,
@@ -38,8 +39,8 @@ while ($accounts && $eventsCount < $limitEvents) {
 
     $redis->rpush($queue, $events);
 
-    $eventsCount += $eventsNumber;
-    echo sprintf("Added account %d events %s\n", $accountId, $eventsNumber);
+    $eventsCount += $accountEvents;
+    echo sprintf("Added account %d events %s\n", $accountId, $accountEvents);
 }
 
 echo sprintf("Generated %d events\n", $eventsCount);

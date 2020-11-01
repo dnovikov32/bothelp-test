@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
+use Dotenv\Dotenv;
 use Predis\Client;
 use App\Worker\Pool;
 
-(new \Dotenv\Dotenv(__DIR__ . '/../'))->load();
+(new Dotenv(__DIR__ . '/../'))->load();
 
 $queue = getenv('EVENTS_QUEUE_KEY_NAME');
 $limitWorkers = getenv('LIMIT_WORKERS');
